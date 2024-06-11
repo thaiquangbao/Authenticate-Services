@@ -1,0 +1,95 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0.37
+    container_name: mysqldb
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456789
+    networks:
+      - authenticate-service
+  config-server:
+    image: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - authenticate-service
+    depends_on:
+      - mysql
+    environment:
+      server.port: 8888
+      eureka.instance.hostname: eureka-server
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+  eureka-server:
+    image: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - authenticate-service
+    environment:
+      eureka.instance.hostname: eureka-server
+      CONFIG_HOST: config-server
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+      server.port: 8761
+    depends_on:
+      - mysql
+      - config-server
+  api-gateway:
+    image: api-gateway
+    ports:
+      - "8999:8999"
+    networks:
+      - authenticate-service
+    depends_on:
+      - eureka-server
+      - mysql
+      - config-server
+    environment:
+      server.port: 8999
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+      CONFIG_HOST: config-server
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: users-service
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://users-service:9001/
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/auth/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: AuthFilter
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://health-services:9002/
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES: Path=/health/**
+  users-service:
+    image: users-service
+    ports:
+      - "9001:9001"
+    networks:
+      - authenticate-service
+    depends_on:
+      - eureka-server
+      - api-gateway
+      - mysql
+      - config-server
+    environment:
+      server.port: 9001
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+      CONFIG_HOST: config-server
+      MYSQL_HOST: mysqldb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123456789
+      MYSQL_PORT: 3306
+  health-services:
+    image: health-services
+    container_name: health-services
+    ports:
+      - "9002:9002"
+    networks:
+      - authenticate-service
+    depends_on:
+      - eureka-server
+      - api-gateway
+      - mysql
+      - config-server
+    environment:
+      server.port: 9002
+      CONFIG_HOST: config-server
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+networks:
+  authenticate-service:
+    driver: bridge
