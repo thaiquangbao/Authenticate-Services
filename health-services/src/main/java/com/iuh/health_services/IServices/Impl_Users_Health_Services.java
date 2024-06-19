@@ -10,8 +10,9 @@ import java.util.List;
 
 public interface Impl_Users_Health_Services {
     public List<Users_Healths_Response> findAll();
-    public Users_Health findById(String id);
+    public Users_Health findByEmail(String email);
     public ResponseEntity<?> save(Users_Healths_Request users_healths_request);
     public void delete(String id);
     public Users_Health update(Users_Health users_health);
+    public Users_Healths_Response findAllHealthWithUsers(String id);
 }

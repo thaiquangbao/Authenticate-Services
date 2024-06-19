@@ -1,5 +1,6 @@
 package com.iuh.users_service.Services;
 
+import com.iuh.users_service.Clients.UsersHealthClients;
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
 import com.iuh.users_service.Dtos.Reponse.ProfileUsers;
 import com.iuh.users_service.Dtos.Request.LoginDto;
@@ -38,18 +39,27 @@ public class Users_Services implements IUsers_Services {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JWTServices jwtServices;
+    @Autowired
+    private UsersHealthClients usersHealthClients;
     @Override
     public ResponseEntity<?> signupUsers(Register register) {
-        Users_Models users = usersRepositories.findByUserName(register.getUserName());
-        if (users != null) {
-            return ResponseEntity.badRequest().body("Username is already exist!");
+        try {
+            Users_Models users = usersRepositories.findByUserName(register.getUserName());
+            if (users != null) {
+                return ResponseEntity.badRequest().body("Username is already exist!");
+            }
+            String passwordEncode = passwordEncoder.encode(register.getPassWord());
+            register.setPassWord(passwordEncode);
+            register.setRole("USER");
+            Users_Models userSave = usersMapper.toUsersEntity(register);
+            usersRepositories.save(userSave);
+            usersHealthClients.save(usersMapper.toUsersRequest(userSave));
+            return ResponseEntity.ok(userSave);
+        } catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.badRequest().body("Error");
         }
-        String passwordEncode = passwordEncoder.encode(register.getPassWord());
-        register.setPassWord(passwordEncode);
-        register.setRole("USER");
-        Users_Models userSave = usersMapper.toUsersEntity(register);
-        usersRepositories.save(userSave);
-        return ResponseEntity.ok(userSave);
+
     }
 
     @Override
@@ -132,6 +142,17 @@ public class Users_Services implements IUsers_Services {
         } catch (Exception e) {
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("Token is not success");
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getUserByUserName(String userName) {
+        Users_Models users = usersRepositories.findByUserName(userName);
+        if (users != null) {
+            ProfileUsers user = usersMapper.toProfileUsers(users);
+            return ResponseEntity.ok(user);
+        } else {
+            return null;
         }
     }
 }

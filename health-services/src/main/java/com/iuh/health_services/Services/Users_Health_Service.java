@@ -3,7 +3,9 @@ package com.iuh.health_services.Services;
 import com.iuh.health_services.Dtos.Request.Users_Healths_Request;
 import com.iuh.health_services.Dtos.Respone.Users_Healths_Response;
 import com.iuh.health_services.IServices.Impl_Users_Health_Services;
+import com.iuh.health_services.Mapper.UsersMapper;
 import com.iuh.health_services.Mapper.Users_Health_Mapper;
+import com.iuh.health_services.Models.Users;
 import com.iuh.health_services.Models.Users_Health;
 import com.iuh.health_services.Repositories.Users_Health_Repositories;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ public class Users_Health_Service implements Impl_Users_Health_Services {
     private Users_Health_Repositories users_health_repositories;
     @Autowired
     private Users_Health_Mapper users_health_mapper;
+    @Autowired
+    private UsersMapper usersMapper;
     @Override
     public List<Users_Healths_Response>findAll() {
         List<Users_Healths_Response> models = new ArrayList<>();
@@ -33,8 +37,23 @@ public class Users_Health_Service implements Impl_Users_Health_Services {
     }
 
     @Override
-    public Users_Health findById(String id) {
+    public Users_Health findByEmail(String email) {
+
         return null;
+    }
+    public Users_Healths_Response findAllHealthWithUsers(String id) {
+        Users_Health users_health = users_health_repositories.findById(id)
+                .orElse(Users_Health.builder()
+                        .users(Users.builder()
+                                .userName("NOT_FOUND")
+                                .fullName("NOT_FOUND")
+                                .email("NOT_FOUND")
+                                .build())
+                        .build());
+        if(users_health == null) {
+            return null;
+        }
+        return users_health_mapper.toUsersHealthResponse(users_health);
     }
     // trạng thái sức khỏe: Tốt, Khá tốt, Không tốt
     @Override

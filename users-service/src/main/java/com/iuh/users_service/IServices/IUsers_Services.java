@@ -16,4 +16,5 @@ public interface IUsers_Services  extends UserDetailsService {
     ResponseEntity<?> loginAuth(LoginDto loginDtoRequest) throws Exception;
     UserDetails loadUserByUsername(String userName);
     ResponseEntity<?> refreshToken(Authenticated authenticated) throws Exception;
+    ResponseEntity<?> getUserByUserName(String userName);
 }

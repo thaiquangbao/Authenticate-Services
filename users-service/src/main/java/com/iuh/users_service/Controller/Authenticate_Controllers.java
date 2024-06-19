@@ -51,4 +51,12 @@ public class Authenticate_Controllers {
             throw new Exception(e);
         }
     }
+    @GetMapping("/auth/profile/{userName}")
+    public ResponseEntity<?> getUserByUserName(String userName) throws Exception {
+        try {
+            return usersServices.getUserByUserName(userName);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
 }
