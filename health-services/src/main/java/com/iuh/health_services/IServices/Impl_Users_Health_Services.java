@@ -1,6 +1,7 @@
 package com.iuh.health_services.IServices;
 
 import com.iuh.health_services.Dtos.Request.Users_Healths_Request;
+import com.iuh.health_services.Dtos.Respone.Health_Status;
 import com.iuh.health_services.Dtos.Respone.Users_Healths_Response;
 import com.iuh.health_services.Models.Users_Health;
 import org.springframework.http.ResponseEntity;
@@ -14,5 +15,6 @@ public interface Impl_Users_Health_Services {
     public ResponseEntity<?> save(Users_Healths_Request users_healths_request);
     public void delete(String id);
     public Users_Health update(Users_Health users_health);
-    public Users_Healths_Response findAllHealthWithUsers(String id);
+    public List<Health_Status> findAllHealthWithUsers(String userName);
+
 }

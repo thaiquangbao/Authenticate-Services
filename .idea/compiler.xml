@@ -8,30 +8,15 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="health-services" />
-        <module name="users-service" />
-        <module name="users-healths" />
-      </profile>
-      <profile name="Annotation profile for api-gateway" enabled="true">
-        <sourceOutputDir name="../../Setting-Server/api-gateway/target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../../Setting-Server/api-gateway/target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="api-gateway" />
-      </profile>
-      <profile name="Annotation profile for config-server" enabled="true">
-        <sourceOutputDir name="../../Setting-Server/config-server/target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../../Setting-Server/config-server/target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-      </profile>
-      <profile name="Annotation profile for discovery-server" enabled="true">
-        <sourceOutputDir name="../../Setting-Server/discovery-server/target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../../Setting-Server/discovery-server/target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="discovery-server" />
+        <module name="users-healths" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="api-gateway" target="17" />
       <module name="auth-service" target="17" />
+      <module name="discovery-server" target="17" />
+      <module name="users-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

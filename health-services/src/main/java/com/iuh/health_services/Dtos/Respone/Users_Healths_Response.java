@@ -15,4 +15,5 @@ public class Users_Healths_Response {
     private String health_condition;
     private String status;
     private UserDto usersDto;
+    private String created_at;
 }

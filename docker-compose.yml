@@ -94,6 +94,7 @@ services:
       server.port: 9002
       CONFIG_HOST: config-server
       eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+      GATEWAY-USERS-HEALTHS: users-healths
   users-healths:
     image: users-healths
     container_name: users-healths
@@ -112,6 +113,7 @@ services:
       server.port: 9003
       CONFIG_HOST: config-server
       eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+      GATEWAY-HEALTHS: health-services
 networks:
   authenticate-service:
     driver: bridge
