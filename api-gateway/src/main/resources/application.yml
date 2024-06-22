@@ -43,3 +43,7 @@ spring:
             allowedOrigins: "*"
             allowedMethods: "*"
             allowedHeaders: "*"
+management:
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN-SERVER:localhost}:9411/api/v2/spans
