@@ -1,28 +1,25 @@
 package com.iuh.health_services.Models;
 
+import com.iuh.health_services.Dtos.Respone.Health_Status;
+import com.iuh.health_services.Dtos.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-
+import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@Document(collection = "users_health")
-public class Users_Health {
+@Document(collection = "healths")
+public class Healths {
     @Id
     private ObjectId id;
-    private String health_condition;
-    private String message_suggest;
-    private String status;
-    private Users users;
-    private String created_at;
-    private Healths healths;
+    private String heartbeat;
+    private String bloodPressure;
+    private String userName;
 }

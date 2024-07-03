@@ -1,16 +1,18 @@
 package com.iuh.health_services.Mapper;
 
+import com.iuh.health_services.Dtos.HealthDto;
 import com.iuh.health_services.Dtos.Request.Users_Healths_Request;
 import com.iuh.health_services.Dtos.Respone.Health_Status;
 import com.iuh.health_services.Dtos.Respone.Users_Healths_Response;
 import com.iuh.health_services.Dtos.UserDto;
+import com.iuh.health_services.Models.Healths;
 import com.iuh.health_services.Models.Users;
 import com.iuh.health_services.Models.Users_Health;
 import org.springframework.stereotype.Service;
 
 @Service
 public class Users_Health_Mapper {
-    public Users_Health toUsersHealthEntity(Users_Healths_Request users_healths_request, UserDto userDto) {
+    public Users_Health toUsersHealthEntity(Users_Healths_Request users_healths_request, UserDto userDto, HealthDto healthDto) {
         Users users = Users.builder()
                 .id(userDto.getId())
                 .fullName(userDto.getFullName())
@@ -19,11 +21,16 @@ public class Users_Health_Mapper {
                 .userName(userDto.getUserName())
                 .sex(userDto.isSex())
                 .build();
+        Healths healths = Healths.builder()
+                .heartbeat(healthDto.getHeartbeat())
+                .bloodPressure(healthDto.getBloodPressure())
+                .build();
         return Users_Health.builder()
                 .health_condition(users_healths_request.getHealth_condition())
                 .status(users_healths_request.getStatus())
                 .created_at(users_healths_request.getCreated_at())
                 .users(users)
+                .healths(healths)
                 .build();
     }
     public Users_Healths_Response toUsersHealthResponse(Users_Health users_health) {

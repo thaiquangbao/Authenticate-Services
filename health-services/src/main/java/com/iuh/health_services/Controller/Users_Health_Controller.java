@@ -1,5 +1,6 @@
 package com.iuh.health_services.Controller;
 
+import com.iuh.health_services.Dtos.Request.Healths_Request;
 import com.iuh.health_services.Dtos.Request.Users_Healths_Request;
 import com.iuh.health_services.Dtos.Respone.Health_Status;
 import com.iuh.health_services.Dtos.Respone.Users_Healths_Response;
@@ -17,10 +18,10 @@ public class Users_Health_Controller {
     @Autowired
     private Impl_Users_Health_Services usersHealthServices;
     @PostMapping("/health/saveHealth")
-    public ResponseEntity<?> saveHealth(@RequestBody Users_Healths_Request users_healths_request) throws Exception {
+    public ResponseEntity<?> saveHealth(@RequestBody Healths_Request healthsRequest) throws Exception {
         try {
-            System.out.println(users_healths_request);
-            return usersHealthServices.save(users_healths_request);
+            System.out.println(healthsRequest);
+            return usersHealthServices.save(healthsRequest);
         } catch (Exception e) {
             throw new Exception(e);
         }

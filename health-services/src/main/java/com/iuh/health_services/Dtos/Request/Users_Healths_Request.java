@@ -17,4 +17,5 @@ public class Users_Healths_Request {
     private String status;
     private String userName;
     private String created_at;
+    private String id_health;
 }

@@ -1,15 +1,20 @@
 package com.iuh.health_services.Services;
 
 import com.iuh.health_services.Client.UsersClient;
+import com.iuh.health_services.Dtos.Request.Healths_Request;
 import com.iuh.health_services.Dtos.Request.Users_Healths_Request;
+import com.iuh.health_services.Dtos.Respone.Health_Respone;
 import com.iuh.health_services.Dtos.Respone.Health_Status;
 import com.iuh.health_services.Dtos.Respone.Users_Healths_Response;
 import com.iuh.health_services.Dtos.UserDto;
 import com.iuh.health_services.IServices.Impl_Users_Health_Services;
+import com.iuh.health_services.Kafka.HealthProducer;
+import com.iuh.health_services.Mapper.HealthsMapper;
 import com.iuh.health_services.Mapper.UsersMapper;
 import com.iuh.health_services.Mapper.Users_Health_Mapper;
-import com.iuh.health_services.Models.Users;
+import com.iuh.health_services.Models.Healths;
 import com.iuh.health_services.Models.Users_Health;
+import com.iuh.health_services.Repositories.Healths_Repositories;
 import com.iuh.health_services.Repositories.Users_Health_Repositories;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,12 @@ public class Users_Health_Service implements Impl_Users_Health_Services {
     private UsersMapper usersMapper;
     @Autowired
     private UsersClient usersClient;
+    @Autowired
+    private HealthProducer informationHealth;
+    @Autowired
+    private HealthsMapper healthsMapper;
+    @Autowired
+    private Healths_Repositories healthsRepositories;
     @Override
     public List<Users_Healths_Response>findAll() {
         List<Users_Healths_Response> models = new ArrayList<>();
@@ -58,21 +69,24 @@ public class Users_Health_Service implements Impl_Users_Health_Services {
     }
     // trạng thái sức khỏe: Tốt, Khá tốt, Không tốt
     @Override
-    public ResponseEntity<?> save(Users_Healths_Request users_healths_request) {
+    public ResponseEntity<?> save(Healths_Request healthsRequest) {
         try {
-            UserDto users = usersClient.findOneByUserName(users_healths_request.getUserName());
+            UserDto users = usersClient.findOneByUserName(healthsRequest.getUserName());
             if(users == null) {
                 return ResponseEntity.badRequest().body("User is not exist!!!");
             }
-            Set<String> validConditions = new HashSet<>(Arrays.asList("Good", "Quite Good", "Not Good"));
-            if (!validConditions.contains(users_healths_request.getHealth_condition())) {
-                return ResponseEntity.badRequest().body("Trạng thái sức khỏe không hợp lệ");
-            }
-            Users_Health users_health = users_health_mapper.toUsersHealthEntity(users_healths_request, users);
-            ZonedDateTime dateTime = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-            users_health.setCreated_at(dateTime.toString().substring(0, 16));
-            Users_Health dataSaved = users_health_repositories.save(users_health);
-            Users_Healths_Response convert = users_health_mapper.toUsersHealthResponse(dataSaved);
+//            Set<String> validConditions = new HashSet<>(Arrays.asList("Good", "Quite Good", "Not Good"));
+//            if (!validConditions.contains(users_healths_request.getHealth_condition())) {
+//                return ResponseEntity.badRequest().body("Trạng thái sức khỏe không hợp lệ");
+//            }
+//            Users_Health users_health = users_health_mapper.toUsersHealthEntity(users_healths_request, users);
+//            ZonedDateTime dateTime = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+//            users_health.setCreated_at(dateTime.toString().substring(0, 16));
+//            Users_Health dataSaved = users_health_repositories.save(users_health);
+//            Users_Healths_Response convert = users_health_mapper.toUsersHealthResponse(dataSaved);
+            Healths healthMappers = healthsMapper.toEntity(healthsRequest);
+            Health_Respone convert = healthsMapper.toResponse(healthsRepositories.save(healthMappers));
+            informationHealth.sendHealthSuggest(healthsMapper.toDto(convert));
             return ResponseEntity.ok(convert);
         } catch (Exception e) {
             System.out.println(e);
