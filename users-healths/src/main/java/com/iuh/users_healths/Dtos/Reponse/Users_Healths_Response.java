@@ -1,21 +1,20 @@
-package com.iuh.health_services.Dtos.Request;
+package com.iuh.users_healths.Dtos.Reponse;
 
-import com.iuh.health_services.Dtos.UserDto;
+import com.iuh.users_healths.Models.Healths;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Builder
-public class Users_Healths_Request {
+public class Users_Healths_Response {
     private String health_condition;
     private String status;
-    private String userName;
+    private String message_suggest;
+    private UserDto usersDto;
     private String created_at;
-    private String id_health;
+    private Healths healths;
 }

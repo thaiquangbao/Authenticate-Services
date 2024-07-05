@@ -19,6 +19,23 @@ public class HealthProducer {
         Message<HealthDto> messages = MessageBuilder.withPayload(healthDto)
                 .setHeader(KafkaHeaders.TOPIC, "health-topic")
                 .build();
-        kafkaTemplate.send(messages);
+        kafkaTemplate.send(messages).whenComplete((result, ex) -> {
+            if (ex != null) {
+                log.error("Unable to send message=[{}] due to : {}", healthDto, ex.getMessage());
+            } else {
+                System.out.println("Partition:" + result.getRecordMetadata().partition());
+                log.info("Sent message=[{}] with offset=[{}]", healthDto, result.getRecordMetadata().offset());
+            }
+        });
     }
+    //Tự động chạy lại khi có lỗi
+//    @Scheduled(fixedDelay = 10000)
+//    public void resendProducer()
+//    {
+        // Hnah2 đoộng muốn làm
+//    }
+
+
+
+
 }

@@ -5,12 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Health_Status {
-    private String health_condition;
-    private String status;
-    private String created_at;
+public class Health_Response {
+    private String heartbeat;
+    private String bloodPressure;
+    private String userName;
 }

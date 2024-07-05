@@ -1,9 +1,6 @@
 package com.iuh.users_healths.Mappers;
 
-import com.iuh.users_healths.Dtos.Reponse.Health_Status;
-import com.iuh.users_healths.Dtos.Reponse.ProfileUsers;
-import com.iuh.users_healths.Dtos.Reponse.UserDto;
-import com.iuh.users_healths.Dtos.Reponse.Users_Health_Reponse;
+import com.iuh.users_healths.Dtos.Reponse.*;
 import com.iuh.users_healths.Dtos.Resquest.UsersRequest;
 import com.iuh.users_healths.Models.Users;
 import org.springframework.stereotype.Service;
@@ -22,8 +19,9 @@ public class UsersMappers {
                 .build();
     }
 
-    public UsersRequest toUserDto(Users users) {
-        return UsersRequest.builder()
+    public UserDto toUserDto(Users users) {
+        return UserDto.builder()
+                .id(users.getId())
                 .fullName(users.getFullName())
                 .age(users.getAge())
                 .email(users.getEmail())
@@ -34,6 +32,7 @@ public class UsersMappers {
 
     public UserDto toUserDtos(Users users) {
         return UserDto.builder()
+                .id(users.getId())
                 .fullName(users.getFullName())
                 .age(users.getAge())
                 .email(users.getEmail())
@@ -42,15 +41,18 @@ public class UsersMappers {
                 .build();
     }
 
-    public Users_Health_Reponse toUsersHealthReponse(Users users, List<Health_Status> health_status) {
-        return Users_Health_Reponse.builder()
+    public Users_Health_Feign toUsersHealthFeign(Users users, List<Health_Status_Feign> health_status) {
+        return Users_Health_Feign.builder()
                 .fullName(users.getFullName())
                 .age(users.getAge())
                 .email(users.getEmail())
                 .userName(users.getUserName())
                 .sex(users.isSex())
-                .health_status(health_status)
+                .lsHealth(health_status)
                 .build();
 
     }
+
+
+
 }

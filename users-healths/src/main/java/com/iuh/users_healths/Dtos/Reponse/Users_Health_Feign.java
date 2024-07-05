@@ -6,15 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Builder
-public class Users_Health_Reponse {
+public class Users_Health_Feign {
     private String email;
     private String userName;
     private String fullName;
     private boolean sex;
     private String age;
-    private List<Health_Status> health_status;
+    private List<Health_Status_Feign> lsHealth;
 }

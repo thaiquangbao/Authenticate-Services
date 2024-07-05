@@ -1,7 +1,6 @@
-package com.iuh.health_services.Repositories;
+package com.iuh.users_healths.Repositories;
 
-import com.iuh.health_services.Models.Users_Health;
-import org.bson.types.ObjectId;
+import com.iuh.users_healths.Models.Users_Health;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

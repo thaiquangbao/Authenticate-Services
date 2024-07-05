@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Health_Status {
-    private String health_condition;
-    private String status;
-    private String created_at;
-    private String message_suggest;
+public class Health_Status_Feign {
+    private String heartbeat;
+    private String bloodPressure;
 }
