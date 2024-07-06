@@ -7,6 +7,7 @@ import com.iuh.users_service.Dtos.Request.Register;
 import com.iuh.users_service.IServices.IUsers_Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +53,7 @@ public class Authenticate_Controllers {
         }
     }
     @GetMapping("/auth/profile/{userName}")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getUserByUserName(String userName) throws Exception {
         try {
             return usersServices.getUserByUserName(userName);
