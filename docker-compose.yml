@@ -1,5 +1,13 @@
 version: "3.8"
 services:
+#  jenkins:
+#    image: jenkins/jenkins:latest
+#    container_name: jenkins
+#    ports:
+#      - "8081:8080"
+#      - "50000:50000"
+#    networks:
+#      - authenticate-service
   mysql:
     image: mysql:8.0.37
     container_name: mysqldb
@@ -18,6 +26,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    depends_on:
+      - mysql
     networks:
       - authenticate-service
   kafka:
@@ -56,6 +66,10 @@ services:
       - authenticate-service
     environment:
       server.port: 9411
+    depends_on:
+      - zookeeper
+      - kafka
+      - mysql
   config-server:
     image: config-server
     ports:
@@ -82,6 +96,8 @@ services:
     depends_on:
       - config-server
       - mysql
+      - kafka
+      - zookeeper
   api-gateway:
     image: api-gateway
     ports:

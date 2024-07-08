@@ -10,13 +10,20 @@ import com.iuh.users_healths.Mappers.Users_Health_Mapper;
 import com.iuh.users_healths.Models.Users;
 import com.iuh.users_healths.Repositories.Users_Health_Repositories;
 import com.iuh.users_healths.Repositories.Users_Repositories;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.CompletableFuture;
 
 
 @Service
@@ -59,21 +66,42 @@ public class UsersHealthServices implements IUsersHealthServices {
         }
         return usersMapper.toUserDtos(users);
     }
-
+    @Async
     @Override
-    public ResponseEntity<?> findAllHealthOfUser(String userName) {
-        Users users = users_repositories.findByUserName(userName);
-        if(users == null){
-          return ResponseEntity.badRequest().body("User not found");
-        }
-        if(healthClient.findAllUsers(userName).isEmpty()){
-            return ResponseEntity.ok("User not found health");
-        }
-        Users_Health_Feign healthStatusFeign = usersMapper.toUsersHealthFeign(users, healthClient.findAllUsers(userName));
+    @CircuitBreaker(name = "health-service", fallbackMethod = "replaceHealthOfUser") //dùng để xử lý  lỗi khi gọi api health bi gián đoạn
+    @TimeLimiter(name = "health-service") //  replaceHealthOfUser là hàm xử lý khi gọi api health bị gián đoạn
+    @Retry(name = "health-service")
+    public CompletableFuture<ResponseEntity<?>> findAllHealthOfUser(String userName) {
+        return CompletableFuture.supplyAsync(() -> {
+            Users users = users_repositories.findByUserName(userName);
+            if (users == null) {
+                return ResponseEntity.badRequest().body("User not found");
+            }
+            if (healthClient.findAllUsers(userName).isEmpty()) {
+                return ResponseEntity.ok("User not found health");
+            }
+            Users_Health_Feign healthStatusFeign = usersMapper.toUsersHealthFeign(users, healthClient.findAllUsers(userName));
 
-        return ResponseEntity.ok(healthStatusFeign);
+            return ResponseEntity.ok(healthStatusFeign);
+        }).handle((response, ex) -> {
+            if (ex != null) {
+                return handleException(ex);
+            }
+            return response;
+        });
+
     }
-
+    private ResponseEntity<?> handleException(Throwable ex) {
+        log.warn("Exception occurred: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Service is having some issue, please try again later!!!");
+    }
+    public CompletableFuture<ResponseEntity<?>> replaceHealthOfUser(String userName, Throwable throwable) {
+        log.warn("Fallback method called when calling health service from users-health due to: {}", throwable.getMessage());
+        return CompletableFuture.completedFuture(
+                ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Service is having some issue, please try again later!!!")
+        );
+    }
     @Override
     public Users_Healths_Response saveHealthOfUser(HealthDto healthDto) {
         Users users = users_repositories.findByUserName(healthDto.getUserName());
