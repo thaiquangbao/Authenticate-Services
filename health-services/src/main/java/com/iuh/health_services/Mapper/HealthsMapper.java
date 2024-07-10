@@ -1,6 +1,7 @@
 package com.iuh.health_services.Mapper;
 
 import com.iuh.health_services.Dtos.HealthDto;
+import com.iuh.health_services.Dtos.Health_Redis;
 import com.iuh.health_services.Dtos.Request.Healths_Request;
 import com.iuh.health_services.Dtos.Respone.Health_Response;
 import com.iuh.health_services.Dtos.Respone.Health_Status_Feign;
@@ -14,6 +15,7 @@ public class HealthsMapper {
                 .heartbeat(healthsRequest.getHeartbeat())
                 .bloodPressure(healthsRequest.getBloodPressure())
                 .userName(healthsRequest.getUserName())
+                .id_redis(healthsRequest.getId_redis())
                 .build();
     }
     public Health_Response toResponse(Healths healths) {
@@ -21,6 +23,7 @@ public class HealthsMapper {
                 .heartbeat(healths.getHeartbeat())
                 .bloodPressure(healths.getBloodPressure())
                 .userName(healths.getUserName())
+                .id_redis(healths.getId_redis())
                 .build();
     }
     public HealthDto toDto(Health_Response healthRespone) {
@@ -28,12 +31,23 @@ public class HealthsMapper {
                 .heartbeat(healthRespone.getHeartbeat())
                 .bloodPressure(healthRespone.getBloodPressure())
                 .userName(healthRespone.getUserName())
+                .id_redis(healthRespone.getId_redis())
                 .build();
     }
     public Health_Status_Feign toHealthStatus(Healths health) {
         return Health_Status_Feign.builder()
                 .heartbeat(health.getHeartbeat())
                 .bloodPressure(health.getBloodPressure())
+                .id_redis(health.getId_redis())
+                .build();
+    }
+    public Health_Redis toHealthRedis(Healths health) {
+        return Health_Redis.builder()
+                .id(health.getId())
+                .heartbeat(health.getHeartbeat())
+                .bloodPressure(health.getBloodPressure())
+                .userName(health.getUserName())
+                .id_redis(health.getId_redis())
                 .build();
     }
 }

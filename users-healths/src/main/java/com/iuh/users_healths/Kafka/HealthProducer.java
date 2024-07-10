@@ -6,6 +6,7 @@ public record HealthProducer(
         ObjectId id,
         String heartbeat,
         String bloodPressure,
-        String userName
+        String userName,
+        String id_redis
 ) {
 }

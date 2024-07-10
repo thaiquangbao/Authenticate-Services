@@ -14,4 +14,5 @@ public class HealthDto {
     private String heartbeat;
     private String bloodPressure;
     private String userName;
+    private String id_redis;
 }

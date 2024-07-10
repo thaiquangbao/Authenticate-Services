@@ -47,3 +47,6 @@ management:
   zipkin:
     tracing:
       endpoint: http://${ZIPKIN-SERVER:localhost}:9411/api/v2/spans
+  endpoint:
+    health:
+      show-details: always

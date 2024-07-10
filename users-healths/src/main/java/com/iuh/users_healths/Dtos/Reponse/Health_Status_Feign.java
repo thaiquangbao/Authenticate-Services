@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class Health_Status_Feign {
     private String heartbeat;
     private String bloodPressure;
+    private String id_redis;
 }
