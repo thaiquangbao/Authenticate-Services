@@ -53,12 +53,24 @@ public class Users_Health_Service implements Impl_Users_Health_Services {
 
     @Override
     public Health_Redis findOne(String id_redis) {
-
+        if (healthServiceRedis.findUserById("HEALTH",id_redis) == null) {
+            Healths healths = healthsRepositories.findById(id_redis).orElse(null);
+            if (healths == null) {
+                return null;
+            }
+            healthServiceRedis.saveHealth(healthsMapper.toHealthRedis(healths),HEALTH_KEY);
+        }
         return healthServiceRedis.findUserById("HEALTH",id_redis);
     }
 
     @Override
     public List<Health_Redis> findAll() {
+        if(healthServiceRedis.findAllHealth("HEALTH").isEmpty()){
+            List<Healths> healths = healthsRepositories.findAll();
+            for (Healths health : healths) {
+                healthServiceRedis.saveHealth(healthsMapper.toHealthRedis(health),HEALTH_KEY);
+            }
+        }
         return healthServiceRedis.findAllHealth("HEALTH");
     }
 

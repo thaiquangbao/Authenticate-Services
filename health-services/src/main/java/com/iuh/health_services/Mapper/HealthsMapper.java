@@ -43,7 +43,6 @@ public class HealthsMapper {
     }
     public Health_Redis toHealthRedis(Healths health) {
         return Health_Redis.builder()
-                .id(health.getId())
                 .heartbeat(health.getHeartbeat())
                 .bloodPressure(health.getBloodPressure())
                 .userName(health.getUserName())

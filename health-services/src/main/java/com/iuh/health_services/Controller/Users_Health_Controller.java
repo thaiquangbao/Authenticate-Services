@@ -79,11 +79,10 @@ public class Users_Health_Controller {
     public ResponseEntity<?> update(@PathVariable("id") String id, @RequestBody Health_Redis healthRedis) {
         try {
 
-            System.out.println(new ObjectId("6673bf613ac7de63d5bc0ea7"));
             if (usersHealthServices.update(id, healthRedis)) {
-                return ResponseEntity.ok("Delete success");
+                return ResponseEntity.ok("Update success");
             } else {
-                return ResponseEntity.ok("Delete fail");
+                return ResponseEntity.ok("Update fail");
             }
 
         }

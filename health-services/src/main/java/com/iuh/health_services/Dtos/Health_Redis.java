@@ -14,8 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Health_Redis implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private ObjectId id;
     private String heartbeat;
     private String bloodPressure;
     private String userName;

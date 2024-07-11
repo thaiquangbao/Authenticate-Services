@@ -19,6 +19,7 @@ services:
       - authenticate-service
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
+    restart: always
     container_name: zookeeper
     environment:
       ZOOKEEPER_SERVER_ID: 1
@@ -39,6 +40,7 @@ services:
       - "9093:9093"
     depends_on:
       - zookeeper
+      - mysql
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:2092,PLAINTEXT_HOST://localhost:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -57,6 +59,37 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: "anonymous"
     networks:
       - authenticate-service
+  redis:
+    image: redis:6.0.7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - authenticate-service
+    volumes:
+      - redis_volume_data:/data
+    depends_on:
+      - mysql
+      - zookeeper
+      - kafka
+  config-server:
+    image: config-server
+    container_name: config-server
+    restart: always
+    ports:
+      - "8888:8888"
+    networks:
+      - authenticate-service
+    depends_on:
+      - mysql
+      - zookeeper
+      - kafka
+      - redis
+    environment:
+      server.port: 8888
+      eureka.instance.hostname: eureka-server
+      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
@@ -70,41 +103,11 @@ services:
       - zookeeper
       - kafka
       - mysql
-  redis:
-    image: redis:6.0.7
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - authenticate-service
-    volumes:
-      - redis_volume_data:/data
-  redis_insight:
-    image: redislabs/redisinsight
-    container_name: redis_insight
-    ports:
-      - "8001:8001"
-    networks:
-      - authenticate-service
-    depends_on:
       - redis
-    volumes:
-      - redis_insight_volume_data:/db
-  config-server:
-    image: config-server
-    ports:
-      - "8888:8888"
-    networks:
-      - authenticate-service
-    depends_on:
-      - mysql
-    environment:
-      server.port: 8888
-      eureka.instance.hostname: eureka-server
-      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+      - config-server
   eureka-server:
     image: eureka-server
+    container_name: eureka-server
     ports:
       - "8761:8761"
     networks:
@@ -119,8 +122,11 @@ services:
       - mysql
       - kafka
       - zookeeper
+      - redis
+      - zipkin
   api-gateway:
     image: api-gateway
+    container_name: api-gateway
     ports:
       - "8999:8999"
     networks:
@@ -129,6 +135,10 @@ services:
       - eureka-server
       - config-server
       - mysql
+      - zookeeper
+      - kafka
+      - redis
+      - zipkin
     environment:
       server.port: 8999
       eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
@@ -144,14 +154,19 @@ services:
       ZIPKIN-SERVER: zipkin
   users-service:
     image: users-service
+    container_name: users-service
     ports:
       - "9001:9001"
     networks:
       - authenticate-service
     depends_on:
-      - mysql
       - eureka-server
       - config-server
+      - mysql
+      - zookeeper
+      - kafka
+      - redis
+      - zipkin
       - api-gateway
     environment:
       server.port: 9001
@@ -171,10 +186,13 @@ services:
     networks:
       - authenticate-service
     depends_on:
-      - users-service
-      - mysql
       - eureka-server
       - config-server
+      - mysql
+      - zookeeper
+      - kafka
+      - redis
+      - zipkin
       - api-gateway
     environment:
       server.port: 9002
@@ -185,6 +203,7 @@ services:
 #      spring.kafka.producer.bootstrap-servers: kafka:2092
       KAFKA_SERVER: kafka:2092
       KAFKA_PRODUCER: kafka:2092
+      REDIS_HOST: redis
   users-healths:
     image: users-healths
     container_name: users-healths
@@ -193,11 +212,15 @@ services:
     networks:
       - authenticate-service
     depends_on:
-      - users-service
-      - mysql
       - eureka-server
       - config-server
+      - mysql
+      - zookeeper
+      - kafka
+      - redis
+      - zipkin
       - api-gateway
+      - users-service
       - health-services
     environment:
       server.port: 9003
