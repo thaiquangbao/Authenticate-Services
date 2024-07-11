@@ -35,6 +35,7 @@ services:
     image: confluentinc/cp-kafka:7.5.0
     hostname: kafka
     container_name: kafka
+    restart: always
     ports:
       - "9092:9092"
       - "9093:9093"
@@ -93,6 +94,7 @@ services:
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
+    restart: always
     ports:
       - "9411:9411"
     networks:
@@ -108,6 +110,7 @@ services:
   eureka-server:
     image: eureka-server
     container_name: eureka-server
+    restart: always
     ports:
       - "8761:8761"
     networks:
@@ -119,7 +122,6 @@ services:
       server.port: 8761
     depends_on:
       - config-server
-      - mysql
       - kafka
       - zookeeper
       - redis
