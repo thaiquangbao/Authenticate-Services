@@ -35,6 +35,12 @@ spring:
             - ${SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES:Path=/users-health/**}
           filters:
             - AuthFilter
+        - id: users-service-health
+          uri: ${SPRING_CLOUD_GATEWAY_ROUTES_3_URI:http://localhost:3000/}
+          predicates:
+            - ${SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES:Path=/users/**}
+          filters:
+            - AuthFilter
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       globalcors:

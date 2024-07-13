@@ -1,5 +1,6 @@
 package com.iuh.users_healths.Controllers;
 
+import com.iuh.users_healths.Clients.UsersClient;
 import com.iuh.users_healths.Dtos.Reponse.UserDto;
 import com.iuh.users_healths.Dtos.Resquest.UsersRequest;
 import com.iuh.users_healths.IServices.IUsersHealthServices;
@@ -21,6 +22,8 @@ import java.util.concurrent.ExecutionException;
 public class UsersHealthsControllers {
     @Autowired
     private IUsersHealthServices usersHealthServices;
+    @Autowired
+    private UsersClient usersClient;
     private static final Logger log = LoggerFactory.getLogger(UsersHealthServices.class);
     @PostMapping("/users-health/save")
     public UserDto save(@RequestBody UsersRequest users_healths_request) throws Exception {
@@ -45,13 +48,14 @@ public class UsersHealthsControllers {
         return  usersHealthServices.findAllHealthOfUser(userName).get();
     }
 
-//    @GetMapping("/users-health")
-//    public ResponseEntity<?> getHealthUsers() throws Exception {
-//        try {
-//
-//        } catch (Exception e) {
-//            throw new Exception(e);
-//        }
-//
-//    }
+    @GetMapping("/users-health/users/{userName}")
+    public ResponseEntity<?> getUsers(@PathVariable("userName") String userName) throws Exception {
+        try {
+            System.out.println(usersClient.findOneUsers(userName));
+            return ResponseEntity.ok(usersClient.findOneUsers(userName));
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+
+    }
 }

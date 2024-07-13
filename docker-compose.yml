@@ -1,13 +1,13 @@
 version: "3.8"
 services:
-#  jenkins:
-#    image: jenkins/jenkins:latest
-#    container_name: jenkins
-#    ports:
-#      - "8081:8080"
-#      - "50000:50000"
-#    networks:
-#      - authenticate-service
+  # jenkins:
+  #    image: jenkins/jenkins:latest
+  #    container_name: jenkins
+  #    ports:
+  #      - "8081:8080"
+  #      - "50000:50000"
+  #    networks:
+  #      - authenticate-service
   mysql:
     image: mysql:8.0.37
     container_name: mysqldb
@@ -60,20 +60,20 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: "anonymous"
     networks:
       - authenticate-service
-  redis:
-    image: redis:6.0.7
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - authenticate-service
-    volumes:
-      - redis_volume_data:/data
-    depends_on:
-      - mysql
-      - zookeeper
-      - kafka
+  #  redis:
+  #    image: redis:6.0.7
+  #    container_name: redis
+  #    restart: always
+  #    ports:
+  #      - "6379:6379"
+  #    networks:
+  #      - authenticate-service
+  #    volumes:
+  #      - redis_volume_data:/data
+  #    depends_on:
+  #      - mysql
+  #      - zookeeper
+  #      - kafka
   config-server:
     image: config-server
     container_name: config-server
@@ -86,13 +86,13 @@ services:
       - mysql
       - zookeeper
       - kafka
-      - redis
+    #     - redis
     environment:
       server.port: 8888
       eureka.instance.hostname: eureka-server
       eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
   zipkin:
-    image: openzipkin/zipkin
+    image: thaibao2002/openzipkin-zipkin:latest
     container_name: zipkin
     restart: always
     ports:
@@ -105,7 +105,7 @@ services:
       - zookeeper
       - kafka
       - mysql
-      - redis
+#      - redis
       - config-server
   eureka-server:
     image: eureka-server
@@ -122,12 +122,12 @@ services:
       server.port: 8761
     depends_on:
       - config-server
-      - kafka
-      - zookeeper
-      - redis
-      - zipkin
+  #      - kafka
+  #      - zookeeper
+  #      - redis
+  #      - zipkin
   api-gateway:
-    image: api-gateway
+    image: thaibao2002/api-gateway
     container_name: api-gateway
     ports:
       - "8999:8999"
@@ -139,8 +139,8 @@ services:
       - mysql
       - zookeeper
       - kafka
-      - redis
-      - zipkin
+#        - redis
+#        - zipkin
     environment:
       server.port: 8999
       eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
@@ -153,6 +153,8 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES: Path=/health/**
       SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://users-healths:9003/
       SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES: Path=/users-health/**
+      SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://users-health-service:3000/
+      SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES: Path=/users/**
       ZIPKIN-SERVER: zipkin
   users-service:
     image: users-service
@@ -167,8 +169,8 @@ services:
       - mysql
       - zookeeper
       - kafka
-      - redis
-      - zipkin
+#      - redis
+#      - zipkin
       - api-gateway
     environment:
       server.port: 9001
@@ -180,34 +182,34 @@ services:
       MYSQL_PORT: 3306
       GATEWAY-USERS-HEALTHS: users-healths
       ZIPKIN-SERVER: zipkin
-  health-services:
-    image: health-services
-    container_name: health-services
-    ports:
-      - "9002:9002"
-    networks:
-      - authenticate-service
-    depends_on:
-      - eureka-server
-      - config-server
-      - mysql
-      - zookeeper
-      - kafka
-      - redis
-      - zipkin
-      - api-gateway
-    environment:
-      server.port: 9002
-      CONFIG_HOST: config-server
-      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
-      GATEWAY-USERS-HEALTHS: users-healths
-      ZIPKIN-SERVER: zipkin
-#      spring.kafka.producer.bootstrap-servers: kafka:2092
-      KAFKA_SERVER: kafka:2092
-      KAFKA_PRODUCER: kafka:2092
-      REDIS_HOST: redis
+  #  health-services:
+  #    image: health-services
+  #    container_name: health-services
+  #    ports:
+  #      - "9002:9002"
+  #    networks:
+  #      - authenticate-service
+  #    depends_on:
+  #      - eureka-server
+  #      - config-server
+  #      - mysql
+  #      - zookeeper
+  #      - kafka
+  #      - redis
+  #      - zipkin
+  #      - api-gateway
+  #    environment:
+  #      server.port: 9002
+  #      CONFIG_HOST: config-server
+  #      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+  #      GATEWAY-USERS-HEALTHS: users-healths
+  #      ZIPKIN-SERVER: zipkin
+  ##      spring.kafka.producer.bootstrap-servers: kafka:2092
+  #      KAFKA_SERVER: kafka:2092
+  #      KAFKA_PRODUCER: kafka:2092
+  #      REDIS_HOST: redis
   users-healths:
-    image: users-healths
+    image: thaibao2002/users-healths
     container_name: users-healths
     ports:
       - "9003:9003"
@@ -216,14 +218,14 @@ services:
     depends_on:
       - eureka-server
       - config-server
-      - mysql
-      - zookeeper
-      - kafka
-      - redis
-      - zipkin
-      - api-gateway
-      - users-service
-      - health-services
+#        - mysql
+#        - zookeeper
+#        - kafka
+#        - redis
+#        - zipkin
+#        - api-gateway
+#        - users-service
+#        - health-services
     environment:
       server.port: 9003
       CONFIG_HOST: config-server
@@ -232,6 +234,21 @@ services:
       ZIPKIN-SERVER: zipkin
       KAFKA_SERVER: kafka:2092
       KAFKA_PRODUCER: kafka:2092
+      GATEWAY-USERS-SERVICE-HEALTHS: users-health-service
+  users-health-service:
+    image: thaibao2002/users-health-service
+    container_name: users-health-service
+    ports:
+      - "3000:3000"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=users-health-service
+      - EUREKA_INSTANCE_IP_ADDRESS=users-health-service
+      - EUREKA_SERVER_HOST=eureka-server
+      - EUREKA_SERVER_PORT=8761
+      - FEIGN_USERS_HEALTH=http://users-healths:9003
+    networks:
+      - authenticate-service
 networks:
   authenticate-service:
     driver: bridge

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ProfileUsers {
-    private String id;
     private String email;
     private String userName;
     private String fullName;
