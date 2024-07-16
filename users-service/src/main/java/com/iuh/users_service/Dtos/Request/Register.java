@@ -14,7 +14,10 @@ public class Register {
     private String age;
     private String passWord;
     private String email;
-    private String userName;
     private boolean sex;
     private String role;
+    private String address;
+    private String phone;
+    private String dateOfBirth;
+    private String image;
 }

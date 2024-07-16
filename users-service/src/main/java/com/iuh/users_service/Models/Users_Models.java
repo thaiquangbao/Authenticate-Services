@@ -21,10 +21,11 @@ public class Users_Models {
     private String passWord;
     @Column(name = "email")
     private String email;
-    @Column(name = "user_name")
-    private String userName;
     @Column(name = "sex")
     private boolean sex;
     private String role;
-
+    private String address;
+    private String phone;
+    private String dateOfBirth;
+    private String image;
 }

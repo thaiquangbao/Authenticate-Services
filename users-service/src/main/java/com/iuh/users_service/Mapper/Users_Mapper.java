@@ -17,7 +17,10 @@ public class Users_Mapper {
                 .email(register.getEmail())
                 .sex(register.isSex())
                 .role(register.getRole())
-                .userName(register.getUserName())
+                .image(register.getImage())
+                .address(register.getAddress())
+                .dateOfBirth(register.getDateOfBirth())
+                .phone(register.getPhone())
                 .build();
     }
 
@@ -28,9 +31,12 @@ public class Users_Mapper {
                 .passWord(users_models.getPassWord())
                 .age(users_models.getAge())
                 .email(users_models.getEmail())
-                .userName(users_models.getUserName())
                 .sex(users_models.isSex())
                 .role(users_models.getRole())
+                .image(users_models.getImage())
+                .address(users_models.getAddress())
+                .dateOfBirth(users_models.getDateOfBirth())
+                .phone(users_models.getPhone())
                 .build();
     }
 
@@ -41,9 +47,12 @@ public class Users_Mapper {
                 .passWord(users_models.getPassWord())
                 .age(users_models.getAge())
                 .email(users_models.getEmail())
-                .userName(users_models.getUserName())
                 .sex(users_models.isSex())
                 .role(users_models.getRole())
+                .image(users_models.getImage())
+                .address(users_models.getAddress())
+                .dateOfBirth(users_models.getDateOfBirth())
+                .phone(users_models.getPhone())
                 .build();
     }
 
@@ -52,8 +61,11 @@ public class Users_Mapper {
                 .fullName(users_models.getFullName())
                 .age(users_models.getAge())
                 .email(users_models.getEmail())
-                .userName(users_models.getUserName())
                 .sex(users_models.isSex())
+                .image(users_models.getImage())
+                .address(users_models.getAddress())
+                .dateOfBirth(users_models.getDateOfBirth())
+                .phone(users_models.getPhone())
                 .build();
     }
 }

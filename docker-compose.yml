@@ -9,7 +9,7 @@ services:
   #    networks:
   #      - authenticate-service
   mysql:
-    image: mysql:8.0.37
+    image: thaibao2002/mysql:8.0.37
     container_name: mysqldb
     ports:
       - "3307:3306"
@@ -17,49 +17,49 @@ services:
       MYSQL_ROOT_PASSWORD: 123456789
     networks:
       - authenticate-service
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    restart: always
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    depends_on:
-      - mysql
-    networks:
-      - authenticate-service
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    hostname: kafka
-    container_name: kafka
-    restart: always
-    ports:
-      - "9092:9092"
-      - "9093:9093"
-    depends_on:
-      - zookeeper
-      - mysql
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:2092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_BROKER_ID: 2
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9093
-      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:2092
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: "true"
-      CONFLUENT_SUPPORT_CUSTOMER_ID: "anonymous"
-    networks:
-      - authenticate-service
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.5.0
+#    restart: always
+#    container_name: zookeeper
+#    environment:
+#      ZOOKEEPER_SERVER_ID: 1
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#    ports:
+#      - "2181:2181"
+#    depends_on:
+#      - mysql
+#    networks:
+#      - authenticate-service
+#  kafka:
+#    image: confluentinc/cp-kafka:7.5.0
+#    hostname: kafka
+#    container_name: kafka
+#    restart: always
+#    ports:
+#      - "9092:9092"
+#      - "9093:9093"
+#    depends_on:
+#      - zookeeper
+#      - mysql
+#    environment:
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:2092,PLAINTEXT_HOST://localhost:9092
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#      KAFKA_BROKER_ID: 2
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+#      KAFKA_JMX_PORT: 9093
+#      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
+#      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:2092
+#      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+#      CONFLUENT_METRICS_ENABLE: "true"
+#      CONFLUENT_SUPPORT_CUSTOMER_ID: "anonymous"
+#    networks:
+#      - authenticate-service
   #  redis:
   #    image: redis:6.0.7
   #    container_name: redis
@@ -75,7 +75,7 @@ services:
   #      - zookeeper
   #      - kafka
   config-server:
-    image: config-server
+    image: thaibao2002/config-server
     container_name: config-server
     restart: always
     ports:
@@ -84,8 +84,8 @@ services:
       - authenticate-service
     depends_on:
       - mysql
-      - zookeeper
-      - kafka
+#      - zookeeper
+#      - kafka
     #     - redis
     environment:
       server.port: 8888
@@ -102,13 +102,13 @@ services:
     environment:
       server.port: 9411
     depends_on:
-      - zookeeper
-      - kafka
+#      - zookeeper
+#      - kafka
       - mysql
 #      - redis
       - config-server
   eureka-server:
-    image: eureka-server
+    image: thaibao2002/eureka-server
     container_name: eureka-server
     restart: always
     ports:
@@ -125,7 +125,7 @@ services:
   #      - kafka
   #      - zookeeper
   #      - redis
-  #      - zipkin
+      - zipkin
   api-gateway:
     image: thaibao2002/api-gateway
     container_name: api-gateway
@@ -137,10 +137,10 @@ services:
       - eureka-server
       - config-server
       - mysql
-      - zookeeper
-      - kafka
+#      - zookeeper
+#      - kafka
 #        - redis
-#        - zipkin
+      - zipkin
     environment:
       server.port: 8999
       eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
@@ -167,10 +167,10 @@ services:
       - eureka-server
       - config-server
       - mysql
-      - zookeeper
-      - kafka
+#      - zookeeper
+#      - kafka
 #      - redis
-#      - zipkin
+      - zipkin
       - api-gateway
     environment:
       server.port: 9001
@@ -208,16 +208,16 @@ services:
   #      KAFKA_SERVER: kafka:2092
   #      KAFKA_PRODUCER: kafka:2092
   #      REDIS_HOST: redis
-  users-healths:
-    image: thaibao2002/users-healths
-    container_name: users-healths
-    ports:
-      - "9003:9003"
-    networks:
-      - authenticate-service
-    depends_on:
-      - eureka-server
-      - config-server
+#  users-healths:
+#    image: thaibao2002/users-healths
+#    container_name: users-healths
+#    ports:
+#      - "9003:9003"
+#    networks:
+#      - authenticate-service
+#    depends_on:
+#      - eureka-server
+#      - config-server
 #        - mysql
 #        - zookeeper
 #        - kafka
@@ -226,29 +226,29 @@ services:
 #        - api-gateway
 #        - users-service
 #        - health-services
-    environment:
-      server.port: 9003
-      CONFIG_HOST: config-server
-      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
-      GATEWAY-HEALTHS: health-services
-      ZIPKIN-SERVER: zipkin
-      KAFKA_SERVER: kafka:2092
-      KAFKA_PRODUCER: kafka:2092
-      GATEWAY-USERS-SERVICE-HEALTHS: users-health-service
-  users-health-service:
-    image: thaibao2002/users-health-service
-    container_name: users-health-service
-    ports:
-      - "3000:3000"
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - EUREKA_INSTANCE_HOSTNAME=users-health-service
-      - EUREKA_INSTANCE_IP_ADDRESS=users-health-service
-      - EUREKA_SERVER_HOST=eureka-server
-      - EUREKA_SERVER_PORT=8761
-      - FEIGN_USERS_HEALTH=http://users-healths:9003
-    networks:
-      - authenticate-service
+#    environment:
+#      server.port: 9003
+#      CONFIG_HOST: config-server
+#      eureka.client.serviceUrl.defaultZone: http://eureka-server:8761/eureka/
+#      GATEWAY-HEALTHS: health-services
+#      ZIPKIN-SERVER: zipkin
+#      KAFKA_SERVER: kafka:2092
+#      KAFKA_PRODUCER: kafka:2092
+#      GATEWAY-USERS-SERVICE-HEALTHS: users-health-service
+#  users-health-service:
+#    image: thaibao2002/users-health-service
+#    container_name: users-health-service
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+#      - EUREKA_INSTANCE_HOSTNAME=users-health-service
+#      - EUREKA_INSTANCE_IP_ADDRESS=users-health-service
+#      - EUREKA_SERVER_HOST=eureka-server
+#      - EUREKA_SERVER_PORT=8761
+#      - FEIGN_USERS_HEALTH=http://users-healths:9003
+#    networks:
+#      - authenticate-service
 networks:
   authenticate-service:
     driver: bridge

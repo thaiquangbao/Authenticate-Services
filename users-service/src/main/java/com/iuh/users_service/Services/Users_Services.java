@@ -44,13 +44,20 @@ public class Users_Services implements IUsers_Services {
     @Override
     public ResponseEntity<?> signupUsers(Register register) {
         try {
-            Users_Models users = usersRepositories.findByUserName(register.getUserName());
+            Users_Models users = usersRepositories.findByPhone(register.getPhone());
             if (users != null) {
-                return ResponseEntity.badRequest().body("Username is already exist!");
+                return ResponseEntity.badRequest().body("Phone number is already exist!");
             }
             String passwordEncode = passwordEncoder.encode(register.getPassWord());
             register.setPassWord(passwordEncode);
             register.setRole("USER");
+            register.setAge(null);
+            register.setEmail(null);
+            register.setDateOfBirth(null);
+            register.setSex(false);
+            register.setFullName(null);
+            register.setImage(null);
+            register.setAddress(null);
             Users_Models userSave = usersMapper.toUsersEntity(register);
             usersRepositories.save(userSave);
             usersHealthClients.save(usersMapper.toUsersRequest(userSave));
@@ -77,7 +84,7 @@ public class Users_Services implements IUsers_Services {
     public ResponseEntity<?> loginAuth(LoginDto loginDtoRequest) throws Exception {
         try {
 
-            Users_Models usersExist = usersRepositories.findByUserName(loginDtoRequest.getUserName());
+            Users_Models usersExist = usersRepositories.findByPhone(loginDtoRequest.getUserName());
 
             if (usersExist == null) {
                 return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Username not already exists");
@@ -110,7 +117,7 @@ public class Users_Services implements IUsers_Services {
 
     @Override
     public UserDetails loadUserByUsername(String userName) {
-        Users_Models userLoad = usersRepositories.findByUserName(userName);
+        Users_Models userLoad = usersRepositories.findByPhone(userName);
         Authenticated users = usersMapper.toAuthenticated(userLoad);
         users.setMessage("Login Success");
         return users;
@@ -121,13 +128,13 @@ public class Users_Services implements IUsers_Services {
         try {
             String userName = jwtServices.extractUserName(authenticated.getRefreshToken());
 //            System.out.println(userName);
-            Users_Models users = usersRepositories.findByUserName(userName);
+            Users_Models users = usersRepositories.findByPhone(userName);
 
             if (users == null) {
                 return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Username not already exists");
             }
             try {
-                authenticated.setUserName(users.getUserName());
+                authenticated.setPhone(users.getPhone());
                 jwtServices.isTokenvalid(authenticated.getToken(), authenticated);
                 return ResponseEntity.status(HttpStatus.SC_SUCCESS).body("Token is success");
             } catch (Exception e) {
@@ -147,7 +154,7 @@ public class Users_Services implements IUsers_Services {
 
     @Override
     public ResponseEntity<?> getUserByUserName(String userName) {
-        Users_Models users = usersRepositories.findByUserName(userName);
+        Users_Models users = usersRepositories.findByPhone(userName);
         if (users != null) {
             ProfileUsers user = usersMapper.toProfileUsers(users);
             return ResponseEntity.ok(user);

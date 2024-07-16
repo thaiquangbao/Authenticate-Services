@@ -16,4 +16,8 @@ public class UsersRequest {
     private String fullName;
     private boolean sex;
     private String age;
+    private String address;
+    private String phone;
+    private String dateOfBirth;
+    private String image;
 }

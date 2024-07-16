@@ -21,12 +21,15 @@ public class Authenticated implements UserDetails {
     private String age;
     private String passWord;
     private String email;
-    private String userName;
     private boolean sex;
+    private String address;
+    private String phone;
+    private String dateOfBirth;
+    private String image;
+    private String role;
     private String message;
     private String token;
     private String refreshToken;
-    private String role;
     private String expirationTimeAccessToken;
     private String expirationTimeRefreshToken;
     @Override
@@ -41,7 +44,7 @@ public class Authenticated implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return phone;
     }
 
     @Override
