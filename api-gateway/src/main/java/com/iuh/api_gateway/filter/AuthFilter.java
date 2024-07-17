@@ -29,27 +29,27 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
         return ((exchange, chain) -> {
             ServerHttpRequest request = null;
            if (routerValidator.isSecured.test(exchange.getRequest())){
-               if(!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
-                   throw new RuntimeException("missing authorization header");
+               if (!exchange.getRequest().getHeaders().containsKey("accessToken") ||
+                       !exchange.getRequest().getHeaders().containsKey("refreshToken")) {
+                   throw new RuntimeException("Missing accessToken or refreshToken header");
                }
-               String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-               if (authHeader!=null && authHeader.startsWith("Bearer ")){
-                   authHeader = authHeader.substring(7);
-               }
-               System.out.println("Bearer "+authHeader);
-               System.out.println("Token is active:" + jwtUtils.generateToken(authHeader));
+               String accessToken = exchange.getRequest().getHeaders().get("accessToken").get(0);
+               String refreshToken = exchange.getRequest().getHeaders().get("refreshToken").get(0);
+
+               System.out.println("AccessToken: " + accessToken);
+               System.out.println("RefreshToken: " + refreshToken);
                try {
-                    jwtUtils.validateToken(authHeader);
-                    request = exchange.getRequest()
+                   // Validate accessToken. You might also want to check refreshToken validity or use it to refresh the accessToken
+                   jwtUtils.validateToken(accessToken);
+                   // Assuming generateToken uses the accessToken to generate or validate a token
+                   request = exchange.getRequest()
                            .mutate()
-                           .header("loggedUser", jwtUtils.generateToken(authHeader))
-                            .build();
-               }catch (Exception e){
+                           .header("loggedUser", jwtUtils.generateToken(accessToken))
+                           .build();
+               } catch (Exception e) {
                    ServerHttpResponse response = exchange.getResponse();
                    response.setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
-
                }
-
            }
             return chain.filter(exchange.mutate().request(request).build());
         });

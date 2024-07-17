@@ -3,7 +3,9 @@ package com.iuh.users_service.Services;
 import com.iuh.users_service.Clients.UsersHealthClients;
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
 import com.iuh.users_service.Dtos.Reponse.ProfileUsers;
+import com.iuh.users_service.Dtos.Reponse.Token;
 import com.iuh.users_service.Dtos.Request.*;
+import com.iuh.users_service.Dtos.UserDto;
 import com.iuh.users_service.IServices.IUsers_Services;
 import com.iuh.users_service.Mapper.Users_Mapper;
 import com.iuh.users_service.Models.Users_Models;
@@ -91,29 +93,29 @@ public class Users_Services implements IUsers_Services {
             Users_Models usersExist = usersRepositories.findByPhone(loginDtoRequest.getUserName());
 
             if (usersExist == null) {
-                return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Username not already exists");
+                return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Số điện thoại không tồn tại trogn hệ thống");
             }
             String validPassword = usersExist.getPassWord();
             boolean jwt = passwordEncoder.matches(loginDtoRequest.getPassWord(), validPassword);
             if (jwt == false) {
-                return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Password is incorrect");
+                return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Mật khẩu không đúng");
             }
             // set các giá trị phù hợp với thư viện Authentication
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDtoRequest.getUserName(), loginDtoRequest.getPassWord()));
             Authenticated usersDtoRespones = usersMapper.toAuthenticated(usersExist);
             UserDetails userDetails = new User(usersDtoRespones.getUsername(), usersDtoRespones.getPassword(), usersDtoRespones.getAuthorities());
             // add authentication vào jwtUntils để tạo ra token
-            String token = jwtServices.generateToken(userDetails);
+            String accessToken = jwtServices.generateToken(userDetails);
+
             // chứa thông tin mà refresh token mang theo
             HashMap<String, String> userInfo = new HashMap<>();
             userInfo.put("role", usersDtoRespones.getRole());
             String refreshToken = jwtServices.generateRefreshToken(userInfo, usersDtoRespones);
-            usersDtoRespones.setMessage("Login Success");
+            Token token = new Token();
+            token.setAccessToken(accessToken);
+            token.setRefreshToken(refreshToken);
             usersDtoRespones.setToken(token);
-            usersDtoRespones.setRefreshToken(refreshToken);
-            usersDtoRespones.setExpirationTimeAccessToken("12 Hours");
-            usersDtoRespones.setExpirationTimeRefreshToken("24 Hours");
-            return ResponseEntity.ok(usersDtoRespones);
+            return ResponseEntity.ok(usersMapper.toUserUntill(usersDtoRespones));
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -123,38 +125,36 @@ public class Users_Services implements IUsers_Services {
     public UserDetails loadUserByUsername(String userName) {
         Users_Models userLoad = usersRepositories.findByPhone(userName);
         Authenticated users = usersMapper.toAuthenticated(userLoad);
-        users.setMessage("Login Success");
         return users;
     }
 
-    @Override
-    public ResponseEntity<?> refreshToken(Authenticated authenticated) throws Exception {
-        try {
-            String userName = jwtServices.extractUserName(authenticated.getRefreshToken());
-//            System.out.println(userName);
-            Users_Models users = usersRepositories.findByPhone(userName);
-
-            if (users == null) {
-                return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Username not already exists");
-            }
-            try {
-                authenticated.setPhone(users.getPhone());
-                jwtServices.isTokenvalid(authenticated.getToken(), authenticated);
-                return ResponseEntity.status(HttpStatus.SC_SUCCESS).body("Token is success");
-            } catch (Exception e) {
-                HashMap<String, String> claims = new HashMap<>();
-                claims.put("role", users.getRole());
-                ReturnToken newsToken = jwtServices.reloadRefreshToken(claims,authenticated.getRefreshToken(), authenticated);
-                authenticated.setToken(newsToken.getAccessToken());
-                authenticated.setRefreshToken(newsToken.getRefreshToken());
-                return ResponseEntity.ok(authenticated);
-            }
-
-        } catch (Exception e) {
-            System.out.println(e);
-            return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("Token is not success");
-        }
-    }
+//    @Override
+//    public Authenticated refreshToken(Authenticated authenticated) throws Exception {
+//        ReturnToken tokenNew = new ReturnToken();
+//        try {
+//            String userName = jwtServices.extractUserName(authenticated.getToken().getRefreshToken());
+////            System.out.println(userName);
+//            Users_Models users = usersRepositories.findByPhone(userName);
+//
+//            try {
+//                authenticated.setPhone(users.getPhone());
+//                jwtServices.isTokenvalid(authenticated.getToken().getAccessToken(),authenticated);
+//                // có nghiĩa l k cần refress token
+//                return null;
+//            } catch (Exception e) {
+//                HashMap<String, String> claims = new HashMap<>();
+//                claims.put("role", users.getRole());
+//                ReturnToken newsToken = jwtServices.reloadRefreshToken(claims,authenticated.getToken().getRefreshToken(), authenticated);
+//                authenticated.getToken().setAccessToken(newsToken.getAccessToken());
+//                authenticated.getToken().setRefreshToken(newsToken.getRefreshToken());
+//                return authenticated;
+//            }
+//
+//        } catch (Exception e) {
+//            System.out.println(e);
+//           throw new Exception(e);
+//        }
+//    }
 
     @Override
     public ResponseEntity<?> getUserByUserName(String userName) {
@@ -172,12 +172,12 @@ public class Users_Services implements IUsers_Services {
         try {
             Users_Models vertify = usersRepositories.findByPhone(updateUsers.getPhone());
             if(vertify == null) {
-                return ResponseEntity.badRequest().body("Phone is not valid");
+                return ResponseEntity.badRequest().body("Số đieện thoại khkong6 khả dụng");
             }
             String validPassword = vertify.getPassWord();
             boolean jwt = passwordEncoder.matches(updateUsers.getPassWord(), validPassword);
             if (jwt == false) {
-                return ResponseEntity.badRequest().body("Password is not valid");
+                return ResponseEntity.badRequest().body("Mật khẩu không khả dụng");
             }
             Users_Models updatedUser = usersMapper.toUserModelUpdate(updateUsers);
             updatedUser.setPassWord(validPassword);
@@ -201,5 +201,29 @@ public class Users_Services implements IUsers_Services {
         token.setRefreshToken(refreshToken);
         return ResponseEntity.ok(token);
     }
+
+    @Override
+    public ResponseEntity<?> getUserByToken(Token token) {
+        try {
+            // check token
+            jwtServices.isExpiration(token.getAccessToken());
+            String userName = jwtServices.extractUserName(token.getAccessToken());
+            //Users_Models vertify = usersRepositories.findByPhone(userName);
+            System.out.println(userName);
+           return ResponseEntity.ok(userName);
+        } catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.badRequest().body("Error");
+        }
+
+    }
+
+    @Override
+    public UserDto getUserById(Long id) {
+        Users_Models users = usersRepositories.getReferenceById(id);
+        UserDto user = usersMapper.toUserDto(users);
+        return user;
+    }
+
 
 }

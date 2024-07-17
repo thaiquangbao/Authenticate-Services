@@ -2,6 +2,8 @@ package com.iuh.users_service.Services;
 
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
 import com.iuh.users_service.Dtos.Request.ReturnToken;
+import com.iuh.users_service.Dtos.UserDto;
+import com.iuh.users_service.Dtos.UserDtoCheck;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,7 +51,7 @@ public class JWTServices implements Serializable {
                 .compact();
     }
     // reload token
-    public ReturnToken reloadRefreshToken(HashMap<String, String> claims, String token, Authenticated userDetails){
+    public ReturnToken reloadRefreshToken(HashMap<String, String> claims, String token, UserDtoCheck userDetails){
         // lấy time còn lại của refresh token
         Date expirationDate = extractClaims(token, Claims::getExpiration);
 
@@ -58,7 +60,7 @@ public class JWTServices implements Serializable {
 
         // Tạo ra lại access token
         String newAccessToken = Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getData().getId().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
                 .signWith(secretKey)
@@ -67,7 +69,7 @@ public class JWTServices implements Serializable {
         // Generate new refresh token with the remaining time
         String newRefreshToken = Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getData().getId().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + remainingTime))
                 .signWith(secretKey)
@@ -100,7 +102,12 @@ public class JWTServices implements Serializable {
 
     //token đã hết hạn hay chưa
     public boolean isExpiration (String token){
-        return extractClaims(token,Claims::getExpiration).before(new Date());
+        try {
+            extractClaims(token,Claims::getExpiration).before(new Date());
+            return true;
+        } catch (Exception e){
+            return false;
+        }
     }
     public String generateTokenSignup(String id){
         return Jwts.builder()

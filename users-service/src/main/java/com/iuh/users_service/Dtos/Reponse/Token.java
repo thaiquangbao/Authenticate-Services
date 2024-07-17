@@ -1,4 +1,4 @@
-package com.iuh.users_service.Dtos.Request;
+package com.iuh.users_service.Dtos.Reponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class GenerateToken  {
-    private Long id;
+@NoArgsConstructor
+public class Token {
+    private String accessToken;
+    private String refreshToken;
 }

@@ -14,7 +14,7 @@ import java.util.function.Function;
 public class JWTUtils {
     private final SecretKey secretKey;
     //time Hết Hạn là 1 ngày
-    private static final long EXPiRATION_TIME = 86400000L;
+    private static final long EXPiRATION_TIME = 2592000000L;
 
     public JWTUtils(){
         String secretString = "843567893696976453275974432697R634976R738467TR678T34865R6834R8763T478378637664538745673865783678548735687R3";

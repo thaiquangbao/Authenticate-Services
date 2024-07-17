@@ -14,6 +14,7 @@ public class RouterValidator {
             "/auth/login",
             "/auth/update",
             "/auth/generateToken",
+            "/auth/userByToken",
             "/users-health/save"
     );
 

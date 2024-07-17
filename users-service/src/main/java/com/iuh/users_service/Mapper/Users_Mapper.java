@@ -5,6 +5,8 @@ import com.iuh.users_service.Dtos.Reponse.ProfileUsers;
 import com.iuh.users_service.Dtos.Request.Register;
 import com.iuh.users_service.Dtos.Request.UpdateUsers;
 import com.iuh.users_service.Dtos.Request.UsersRequest;
+import com.iuh.users_service.Dtos.UserDto;
+import com.iuh.users_service.Dtos.UserUntill;
 import com.iuh.users_service.Models.Users_Models;
 import org.springframework.stereotype.Service;
 
@@ -81,6 +83,40 @@ public class Users_Mapper {
                 .dateOfBirth(updateUsers.getDateOfBirth())
                 .phone(updateUsers.getPhone())
                 .processSignup(updateUsers.getProcessSignup())
+                .build();
+    }
+    public UserUntill toUserUntill(Authenticated authenticated) {
+        UserDto userDto = UserDto.builder()
+                .id(authenticated.getId())
+                .address(authenticated.getAddress())
+                .sex(authenticated.isSex())
+                .image(authenticated.getImage())
+                .role(authenticated.getRole())
+                .dateOfBirth(authenticated.getDateOfBirth())
+                .phone(authenticated.getPhone())
+                .fullName(authenticated.getFullName())
+                .email(authenticated.getEmail())
+                .processSignup(authenticated.getProcessSignup())
+                .passWord(authenticated.getPassWord1())
+                .build();
+        return UserUntill.builder()
+                .data(userDto)
+                .token(authenticated.getToken())
+                .build();
+    }
+    public UserDto toUserDto(Users_Models users_models) {
+        return UserDto.builder()
+                .id(users_models.getId())
+                .fullName(users_models.getFullName())
+                .email(users_models.getEmail())
+                .passWord(users_models.getPassWord())
+                .sex(users_models.isSex())
+                .image(users_models.getImage())
+                .address(users_models.getAddress())
+                .dateOfBirth(users_models.getDateOfBirth())
+                .phone(users_models.getPhone())
+                .processSignup(users_models.getProcessSignup())
+                .role(users_models.getRole())
                 .build();
     }
 }
