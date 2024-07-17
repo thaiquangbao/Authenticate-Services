@@ -14,6 +14,7 @@ services:
     ports:
       - "3307:3306"
     environment:
+      MYSQL_DATABASE: users_services
       MYSQL_ROOT_PASSWORD: 123456789
     networks:
       - authenticate-service
@@ -157,7 +158,7 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES: Path=/users/**
       ZIPKIN-SERVER: zipkin
   users-service:
-    image: users-service
+    image: thaibao2002/users-service
     container_name: users-service
     ports:
       - "9001:9001"
