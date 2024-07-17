@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "users-healths", url = "${application.config.users-healths-url}")
 public interface UsersHealthClients {
-    @PostMapping("/users-health/save")
-    public UsersRequest save(@RequestBody UsersRequest users_healths_request);
+//    @PostMapping("/users-health/save")
+//    public UsersRequest save(@RequestBody UsersRequest users_healths_request);
 }

@@ -9,13 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UsersRequest {
-    private String id;
-    private String email;
-    private String userName;
+public class UpdateUsers {
+    private Long id;
     private String fullName;
+    private String email;
     private boolean sex;
-    private String age;
+    private String passWord;
     private String address;
     private String phone;
     private String dateOfBirth;

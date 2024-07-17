@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Register {
     private String fullName;
-    private String age;
     private String passWord;
     private String email;
     private boolean sex;
@@ -20,4 +19,5 @@ public class Register {
     private String phone;
     private String dateOfBirth;
     private String image;
+    private int processSignup;
 }

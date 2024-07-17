@@ -3,13 +3,12 @@ package com.iuh.users_service.Services;
 import com.iuh.users_service.Clients.UsersHealthClients;
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
 import com.iuh.users_service.Dtos.Reponse.ProfileUsers;
-import com.iuh.users_service.Dtos.Request.LoginDto;
-import com.iuh.users_service.Dtos.Request.Register;
-import com.iuh.users_service.Dtos.Request.ReturnToken;
+import com.iuh.users_service.Dtos.Request.*;
 import com.iuh.users_service.IServices.IUsers_Services;
 import com.iuh.users_service.Mapper.Users_Mapper;
 import com.iuh.users_service.Models.Users_Models;
 import com.iuh.users_service.Repositories.UsersRepositories;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.SecretKey;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 @Service
@@ -39,8 +40,11 @@ public class Users_Services implements IUsers_Services {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JWTServices jwtServices;
+
     @Autowired
     private UsersHealthClients usersHealthClients;
+    private static final long REFRESH_EXPiRATION_TIME = 2592000000L;
+    private static final long ACCESS_EXPIRATION_TIME = 60000L;
     @Override
     public ResponseEntity<?> signupUsers(Register register) {
         try {
@@ -51,16 +55,16 @@ public class Users_Services implements IUsers_Services {
             String passwordEncode = passwordEncoder.encode(register.getPassWord());
             register.setPassWord(passwordEncode);
             register.setRole("USER");
-            register.setAge(null);
             register.setEmail(null);
             register.setDateOfBirth(null);
             register.setSex(false);
             register.setFullName(null);
             register.setImage(null);
             register.setAddress(null);
+            register.setProcessSignup(1);
             Users_Models userSave = usersMapper.toUsersEntity(register);
             usersRepositories.save(userSave);
-            usersHealthClients.save(usersMapper.toUsersRequest(userSave));
+            //usersHealthClients.save(usersMapper.toUsersRequest(userSave));
             return ResponseEntity.ok(userSave);
         } catch (Exception e) {
             System.out.println(e);
@@ -162,4 +166,40 @@ public class Users_Services implements IUsers_Services {
             return null;
         }
     }
+
+    @Override
+    public ResponseEntity<?> updateUsers(UpdateUsers updateUsers) {
+        try {
+            Users_Models vertify = usersRepositories.findByPhone(updateUsers.getPhone());
+            if(vertify == null) {
+                return ResponseEntity.badRequest().body("Phone is not valid");
+            }
+            String validPassword = vertify.getPassWord();
+            boolean jwt = passwordEncoder.matches(updateUsers.getPassWord(), validPassword);
+            if (jwt == false) {
+                return ResponseEntity.badRequest().body("Password is not valid");
+            }
+            Users_Models updatedUser = usersMapper.toUserModelUpdate(updateUsers);
+            updatedUser.setPassWord(validPassword);
+            updatedUser.setRole("USER");
+            Users_Models savedUser = usersRepositories.save(updatedUser);
+            return ResponseEntity.ok(savedUser);
+
+        }
+        catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.badRequest().body("Error");
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> generateTokenSignup(GenerateToken generateToken) {
+        String accessToken = jwtServices.generateTokenSignup(generateToken.getId()+"");
+        String refreshToken = jwtServices.generateRefreshTokenSignup(generateToken.getId()+"");
+        ReturnToken token = new ReturnToken();
+        token.setAccessToken(accessToken);
+        token.setRefreshToken(refreshToken);
+        return ResponseEntity.ok(token);
+    }
+
 }

@@ -2,16 +2,16 @@ package com.iuh.users_service.Controller;
 
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
 import com.iuh.users_service.Dtos.Reponse.ProfileUsers;
+import com.iuh.users_service.Dtos.Request.GenerateToken;
 import com.iuh.users_service.Dtos.Request.LoginDto;
 import com.iuh.users_service.Dtos.Request.Register;
+import com.iuh.users_service.Dtos.Request.UpdateUsers;
 import com.iuh.users_service.IServices.IUsers_Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -57,6 +57,22 @@ public class Authenticate_Controllers {
     public ResponseEntity<?> getUserByUserName(String userName) throws Exception {
         try {
             return usersServices.getUserByUserName(userName);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+    @PostMapping("/auth/update")
+    public ResponseEntity<?> updateUsers(@RequestBody UpdateUsers users) throws Exception {
+        try {
+            return usersServices.updateUsers(users);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+    @PostMapping("/auth/generateToken")
+    public ResponseEntity<?> generateToken(@RequestBody GenerateToken generateToken) throws Exception {
+        try {
+            return usersServices.generateTokenSignup(generateToken);
         } catch (Exception e) {
             throw new Exception(e);
         }

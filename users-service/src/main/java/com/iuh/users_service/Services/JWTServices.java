@@ -20,8 +20,8 @@ import java.util.function.Function;
 public class JWTServices implements Serializable {
     private final SecretKey secretKey;
     //time Hết Hạn là 1 ngày
-    private static final long REFRESH_EXPiRATION_TIME = 86400000L;
-    private static final long ACCESS_EXPIRATION_TIME = 43200000L;
+    private static final long REFRESH_EXPiRATION_TIME = 2592000000L;
+    private static final long ACCESS_EXPIRATION_TIME = 60000L;
     public JWTServices(){
         String secretString = "843567893696976453275974432697R634976R738467TR678T34865R6834R8763T478378637664538745673865783678548735687R3";
         //chuẩn hóa theo UTF-8
@@ -101,5 +101,21 @@ public class JWTServices implements Serializable {
     //token đã hết hạn hay chưa
     public boolean isExpiration (String token){
         return extractClaims(token,Claims::getExpiration).before(new Date());
+    }
+    public String generateTokenSignup(String id){
+        return Jwts.builder()
+                .subject(id)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+ACCESS_EXPIRATION_TIME))
+                .signWith(secretKey)
+                .compact();
+    }
+    public String generateRefreshTokenSignup(String id){
+        return Jwts.builder()
+                .setSubject(id)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+REFRESH_EXPiRATION_TIME))
+                .signWith(secretKey)
+                .compact();
     }
 }

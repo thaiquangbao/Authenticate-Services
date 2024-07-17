@@ -3,6 +3,7 @@ package com.iuh.users_service.Mapper;
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
 import com.iuh.users_service.Dtos.Reponse.ProfileUsers;
 import com.iuh.users_service.Dtos.Request.Register;
+import com.iuh.users_service.Dtos.Request.UpdateUsers;
 import com.iuh.users_service.Dtos.Request.UsersRequest;
 import com.iuh.users_service.Models.Users_Models;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,6 @@ public class Users_Mapper {
     public Users_Models toUsersEntity(Register register) {
         return Users_Models.builder()
                 .fullName(register.getFullName())
-                .age(register.getAge())
                 .passWord(register.getPassWord())
                 .email(register.getEmail())
                 .sex(register.isSex())
@@ -21,6 +21,7 @@ public class Users_Mapper {
                 .address(register.getAddress())
                 .dateOfBirth(register.getDateOfBirth())
                 .phone(register.getPhone())
+                .processSignup(register.getProcessSignup())
                 .build();
     }
 
@@ -29,7 +30,6 @@ public class Users_Mapper {
                 .id(users_models.getId())
                 .fullName(users_models.getFullName())
                 .passWord(users_models.getPassWord())
-                .age(users_models.getAge())
                 .email(users_models.getEmail())
                 .sex(users_models.isSex())
                 .role(users_models.getRole())
@@ -37,6 +37,7 @@ public class Users_Mapper {
                 .address(users_models.getAddress())
                 .dateOfBirth(users_models.getDateOfBirth())
                 .phone(users_models.getPhone())
+                .processSignup(users_models.getProcessSignup())
                 .build();
     }
 
@@ -45,7 +46,6 @@ public class Users_Mapper {
                 .id(users_models.getId())
                 .fullName(users_models.getFullName())
                 .passWord(users_models.getPassWord())
-                .age(users_models.getAge())
                 .email(users_models.getEmail())
                 .sex(users_models.isSex())
                 .role(users_models.getRole())
@@ -53,19 +53,34 @@ public class Users_Mapper {
                 .address(users_models.getAddress())
                 .dateOfBirth(users_models.getDateOfBirth())
                 .phone(users_models.getPhone())
+                .processSignup(users_models.getProcessSignup())
                 .build();
     }
 
     public UsersRequest toUsersRequest(Users_Models users_models) {
         return UsersRequest.builder()
                 .fullName(users_models.getFullName())
-                .age(users_models.getAge())
                 .email(users_models.getEmail())
                 .sex(users_models.isSex())
                 .image(users_models.getImage())
                 .address(users_models.getAddress())
                 .dateOfBirth(users_models.getDateOfBirth())
                 .phone(users_models.getPhone())
+                .processSignup(users_models.getProcessSignup())
+                .build();
+    }
+    public Users_Models toUserModelUpdate(UpdateUsers updateUsers) {
+        return Users_Models.builder()
+                .id(updateUsers.getId())
+                .fullName(updateUsers.getFullName())
+                .email(updateUsers.getEmail())
+                .sex(updateUsers.isSex())
+                .passWord(updateUsers.getPassWord())
+                .image(updateUsers.getImage())
+                .address(updateUsers.getAddress())
+                .dateOfBirth(updateUsers.getDateOfBirth())
+                .phone(updateUsers.getPhone())
+                .processSignup(updateUsers.getProcessSignup())
                 .build();
     }
 }

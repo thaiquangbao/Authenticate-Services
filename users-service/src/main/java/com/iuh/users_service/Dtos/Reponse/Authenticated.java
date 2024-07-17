@@ -18,7 +18,6 @@ import java.util.List;
 public class Authenticated implements UserDetails {
     private Long id;
     private String fullName;
-    private String age;
     private String passWord;
     private String email;
     private boolean sex;
@@ -27,6 +26,7 @@ public class Authenticated implements UserDetails {
     private String dateOfBirth;
     private String image;
     private String role;
+    private int processSignup;
     private String message;
     private String token;
     private String refreshToken;

@@ -15,8 +15,6 @@ public class Users_Models {
     private Long id;
     @Column(name = "full_name")
     private String fullName;
-    @Column(name = "age")
-    private String age;
     @Column(name = "password")
     private String passWord;
     @Column(name = "email")
@@ -28,4 +26,5 @@ public class Users_Models {
     private String phone;
     private String dateOfBirth;
     private String image;
+    private int processSignup;
 }
