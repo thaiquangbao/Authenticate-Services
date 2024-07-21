@@ -36,8 +36,6 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                String accessToken = exchange.getRequest().getHeaders().get("accessToken").get(0);
                String refreshToken = exchange.getRequest().getHeaders().get("refreshToken").get(0);
 
-               System.out.println("AccessToken: " + accessToken);
-               System.out.println("RefreshToken: " + refreshToken);
                try {
                    // Validate accessToken. You might also want to check refreshToken validity or use it to refresh the accessToken
                    jwtUtils.validateToken(accessToken);

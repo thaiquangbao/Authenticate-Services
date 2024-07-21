@@ -35,10 +35,10 @@ spring:
             - ${SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES:Path=/users-health/**}
           filters:
             - AuthFilter
-        - id: users-service-health
-          uri: ${SPRING_CLOUD_GATEWAY_ROUTES_3_URI:http://localhost:3000/}
+        - id: doctor-service
+          uri: ${SPRING_CLOUD_GATEWAY_ROUTES_3_URI:http://localhost:9005/}
           predicates:
-            - ${SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES:Path=/users/**}
+            - ${SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES:Path=/doctors/**}
           filters:
             - AuthFilter
       default-filters:

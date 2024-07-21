@@ -1,6 +1,8 @@
 package com.iuh.users_service.Services;
 
+import com.iuh.users_service.Dtos.DoctorDtoCheck;
 import com.iuh.users_service.Dtos.Reponse.Authenticated;
+import com.iuh.users_service.Dtos.Reponse.DoctorAuth;
 import com.iuh.users_service.Dtos.Request.ReturnToken;
 import com.iuh.users_service.Dtos.UserDto;
 import com.iuh.users_service.Dtos.UserDtoCheck;
@@ -50,8 +52,48 @@ public class JWTServices implements Serializable {
                 .signWith(secretKey)
                 .compact();
     }
+    public String generateRefreshTokenDoctor(HashMap<String, String> claims, DoctorAuth userDetails){
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+REFRESH_EXPiRATION_TIME))
+                .signWith(secretKey)
+                .compact();
+    }
     // reload token
     public ReturnToken reloadRefreshToken(HashMap<String, String> claims, String token, UserDtoCheck userDetails){
+        // lấy time còn lại của refresh token
+        Date expirationDate = extractClaims(token, Claims::getExpiration);
+
+        // thời ian còn lại
+        long remainingTime = expirationDate.getTime() - System.currentTimeMillis();
+
+        // Tạo ra lại access token
+        String newAccessToken = Jwts.builder()
+                .setSubject(userDetails.getData().getId().toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
+                .signWith(secretKey)
+                .compact();
+
+        // Generate new refresh token with the remaining time
+        String newRefreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getData().getId().toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + remainingTime))
+                .signWith(secretKey)
+                .compact();
+
+        // Return the new access token
+        ReturnToken tokenNew = new ReturnToken();
+        tokenNew.setAccessToken(newAccessToken);
+        tokenNew.setRefreshToken(newRefreshToken);
+        return tokenNew;
+    }
+    // reload token for doctor
+    public ReturnToken reloadRefreshTokenDoctor(HashMap<String, String> claims, String token, DoctorDtoCheck userDetails){
         // lấy time còn lại của refresh token
         Date expirationDate = extractClaims(token, Claims::getExpiration);
 
@@ -102,12 +144,8 @@ public class JWTServices implements Serializable {
 
     //token đã hết hạn hay chưa
     public boolean isExpiration (String token){
-        try {
-            extractClaims(token,Claims::getExpiration).before(new Date());
-            return true;
-        } catch (Exception e){
-            return false;
-        }
+        return extractClaims(token,Claims::getExpiration).before(new Date());
+
     }
     public String generateTokenSignup(String id){
         return Jwts.builder()
@@ -117,7 +155,7 @@ public class JWTServices implements Serializable {
                 .signWith(secretKey)
                 .compact();
     }
-    public String generateRefreshTokenSignup(String id){
+        public String generateRefreshTokenSignup(String id){
         return Jwts.builder()
                 .setSubject(id)
                 .setIssuedAt(new Date(System.currentTimeMillis()))

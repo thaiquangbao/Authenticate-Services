@@ -61,4 +61,10 @@ public class UserDto implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+    public String getPassword2() {
+        return passWord;
+    }
+    public Long getId2() {
+        return id;
+    }
 }

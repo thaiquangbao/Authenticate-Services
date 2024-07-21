@@ -154,8 +154,8 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES: Path=/health/**
       SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://users-healths:9003/
       SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES: Path=/users-health/**
-      SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://users-health-service:3000/
-      SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES: Path=/users/**
+      SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://doctor-service:9005/
+      SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES: Path=/doctors/**
       ZIPKIN-SERVER: zipkin
   users-service:
     image: thaibao2002/users-service
@@ -181,7 +181,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: 123456789
       MYSQL_PORT: 3306
-      GATEWAY-USERS-HEALTHS: users-healths
+      GATEWAY-DOCTOR-SERVICE: doctor-service
       ZIPKIN-SERVER: zipkin
   #  health-services:
   #    image: health-services
@@ -236,20 +236,19 @@ services:
 #      KAFKA_SERVER: kafka:2092
 #      KAFKA_PRODUCER: kafka:2092
 #      GATEWAY-USERS-SERVICE-HEALTHS: users-health-service
-#  users-health-service:
-#    image: thaibao2002/users-health-service
-#    container_name: users-health-service
-#    ports:
-#      - "3000:3000"
-#    environment:
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-#      - EUREKA_INSTANCE_HOSTNAME=users-health-service
-#      - EUREKA_INSTANCE_IP_ADDRESS=users-health-service
-#      - EUREKA_SERVER_HOST=eureka-server
-#      - EUREKA_SERVER_PORT=8761
-#      - FEIGN_USERS_HEALTH=http://users-healths:9003
-#    networks:
-#      - authenticate-service
+  doctor-service:
+    image: thaibao2002/doctor-service
+    container_name: doctor-service
+    ports:
+      - "9005:9005"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=doctor-service
+      - EUREKA_INSTANCE_IP_ADDRESS=doctor-service
+      - EUREKA_SERVER_HOST=eureka-server
+      - EUREKA_SERVER_PORT=8761
+    networks:
+      - authenticate-service
 networks:
   authenticate-service:
     driver: bridge
